@@ -121,19 +121,11 @@ def plot_histograms():
 
 def plot_visage_gender_age_distribution():
 
-    df = pd.read_excel('input/visage_gender_distro.xlsx')
-
-    df.columns = ['age', 'female', 'male']
+    df = pd.read_excel('input/visage_gender_distro.xlsx', index_col=0)
 
     print(df)
 
-    plotdata = pd.DataFrame({
-        "male": df['male'],
-        "female": df['female'],
-    },
-        index=df['age']
-    )
-    plotdata.plot(kind="bar")
+    df.plot(kind="bar")
     plt.xlabel("Age")
     plt.ylabel("Occurrences")
     plt.show()
