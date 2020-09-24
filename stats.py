@@ -121,18 +121,21 @@ def plot_histograms():
 
 def plot_visage_gender_age_distribution():
 
-    #df = pd.read_csv('visage_distro.csv')
-    df = pd.read_excel('visage_gender_distro.xlsx')
+    df = pd.read_excel('input/visage_gender_distro.xlsx')
+
+    df.columns = ['age', 'female', 'male']
 
     print(df)
 
-    ax = df.plot(x=0, y=1, label='female', kind='bar', color='k')
-    df.plot(x=0, y=2, label='male', kind='bar', ax=ax)
-
-    plt.xlabel('Age Group')
-    plt.ylabel('Occurences')
-    #plt.title('ttl', fontsize=20)
-
+    plotdata = pd.DataFrame({
+        "male": df['male'],
+        "female": df['female'],
+    },
+        index=df['age']
+    )
+    plotdata.plot(kind="bar")
+    plt.xlabel("Age")
+    plt.ylabel("Occurrences")
     plt.show()
 
 
@@ -142,8 +145,8 @@ plot_visage_gender_age_distribution()
 
 # plot mixed dataset histogram
 
-visage_input_path = os.path.expanduser('~/Documents/images/dataset/visage_base/')
-instagram_input_path = os.path.expanduser('~/Documents/images/ed/instagram_filtered/')
+# visage_input_path = os.path.expanduser('~/Documents/images/dataset/visage_base/')
+# instagram_input_path = os.path.expanduser('~/Documents/images/ed/instagram_filtered/')
 
-plot_histograms()
+# plot_histograms()
 
