@@ -3,5 +3,5 @@
 2) Experiments with VISAGE AND INSTAGRAM (added an additional 7419 images)
 
 
-Use the command-line tool [create_facial_vector.py](create_facial_vector.py) to turn cropped face images into face vectors.
+Use the command-line tool [create_facial_vector.py](create_facial_vector.py) to turn cropped face images into face vectors.  This code is mostly based on the [excellent David Sandberg FaceNet repo.](https://github.com/davidsandberg/facenet)
 
