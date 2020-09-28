@@ -116,7 +116,7 @@ def get_image_paths(inpath):
     return (paths)
 
 
-def faces_to_vectors(inpath, modelpath, outpath, imgsize, repeated_path, batchsize=100):
+def faces_to_vectors(inpath, modelpath, outpath, imgsize, repeated_path=None, batchsize=100):
     '''
     Given a folder and a model, loads images and performs forward pass to get a vector for each face
     results go to a JSON, with filenames mapped to their facevectors
@@ -166,25 +166,27 @@ def faces_to_vectors(inpath, modelpath, outpath, imgsize, repeated_path, batchsi
 
                     results[relpath] = emb_array[j].tolist()
 
-            unq, count = np.unique(full_array, axis=0, return_counts=True)
 
-            repeated_groups = unq[count > 1]
+            if repeated_path is not None:
+                unq, count = np.unique(full_array, axis=0, return_counts=True)
 
-            for repeated_group in repeated_groups:
-                repeated_idx = np.argwhere(np.all(full_array == repeated_group, axis=1))
-                repeated_ = repeated_idx.ravel()
+                repeated_groups = unq[count > 1]
 
-                repeated_files = [full_paths[x] for x in repeated_]
+                for repeated_group in repeated_groups:
+                    repeated_idx = np.argwhere(np.all(full_array == repeated_group, axis=1))
+                    repeated_ = repeated_idx.ravel()
 
-                # move files to duplicate folder outside of path (don't move first instance)
+                    repeated_files = [full_paths[x] for x in repeated_]
 
-                print('removing repeated from:', repeated_files[0])
+                    # move files to duplicate folder outside of path (don't move first instance)
 
-                [shutil.move(os.path.join(inpath, r), repeated_path) for r in repeated_files[1:]]
-                # remove from dictionary
+                    print('removing repeated from:', repeated_files[0])
 
-                for r in repeated_files[1:]:
-                    del results[r]
+                    [shutil.move(os.path.join(inpath, r), repeated_path) for r in repeated_files[1:]]
+                    # remove from dictionary
+
+                    for r in repeated_files[1:]:
+                        del results[r]
 
     # All done, save for later!
     json.dump(results, open(outpath, "w"))
@@ -192,7 +194,7 @@ def faces_to_vectors(inpath, modelpath, outpath, imgsize, repeated_path, batchsi
     return len(results.keys())
 
 
-def get_vectors(input_path, output_path, image_size, repeated_path):
+def get_vectors(input_path, output_path, image_size, repeated_path=None):
     mdlpath = 'models/facenet/20180402-114759.pb'
 
     num_images_processed = faces_to_vectors(
