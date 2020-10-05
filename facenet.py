@@ -192,6 +192,45 @@ def faces_to_vectors(inpath, modelpath, outpath, imgsize, repeated_path, batchsi
     return len(results.keys())
 
 
+def faces_to_vectors_2(inpath, modelpath, imgsize, batchsize=100):
+    '''
+    Given a folder and a model, loads images and performs forward pass to get a vector for each face
+    results go to a JSON, with filenames mapped to their facevectors
+    :param imgsize: size of image
+    :param repeated_path: path to move duplicate face vector source images
+    :param batchsize: size of batch
+    :param inpath: Where are your images? Must be cropped to faces (use MTCNN!)
+    :param modelpath: Where is the tensorflow model we'll use to create the embedding?
+    :param outpath: Full path to output file (better give it a JSON extension)
+    :return: Number of faces converted to vectors
+    '''
+
+    results = dict()
+
+    tf.disable_v2_behavior()
+    with tf.Graph().as_default():
+        with tf.compat.v1.Session() as sess:
+
+            load_model(modelpath)
+
+            image_paths = get_image_paths(inpath)
+
+            # Get input and output tensors
+            images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
+            embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
+            phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
+
+            # Let's do them in batches, don't want to run out of memory
+
+            images = load_data(image_paths=image_paths, do_random_crop=False, do_random_flip=False,
+                               image_size=imgsize, do_prewhiten=True)
+            feed_dict = {images_placeholder: images, phase_train_placeholder: False}
+
+            emb_array = sess.run(embeddings, feed_dict=feed_dict)
+
+            return emb_array
+
+
 def get_vectors(input_path, output_path, image_size, repeated_path):
     mdlpath = 'models/facenet/20180402-114759.pb'
 
@@ -203,3 +242,14 @@ def get_vectors(input_path, output_path, image_size, repeated_path):
         print("Converted " + str(num_images_processed) + " images to face vectors.")
     else:
         print("No images were processed")
+
+
+def get_vectors_np(input_path, image_size):
+
+    mdlpath = 'models/facenet/20180402-114759.pb'
+
+    vectors = faces_to_vectors_2(
+        inpath=input_path, modelpath=mdlpath, imgsize=image_size
+    )
+
+    return vectors
